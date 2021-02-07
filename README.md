@@ -28,6 +28,10 @@ You can reach my Open CV examples from [here](https://github.com/AbdurrahimBalta
 
 In this section, topics such as open image, video upload, open camera, resize crop, shape text, joining images, warp perspective, blending, image treshold, blurring (smoothing), morphology operations, gradients, histogram are covered.
 
+* [Object Detection](https://github.com/AbdurrahimBalta/My-Python-Adventure/tree/master/OpenCV/opencv_nesne_taspiti): The main aspects of the principle of Object Detection.
+
+In this section, topics such edge detection, corner detection, contour detection, ball detection, template matching are covered.
+
 
 # Introduction To Data Science
 
