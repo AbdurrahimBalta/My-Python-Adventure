@@ -27,16 +27,14 @@ You can reach my Open CV examples from [here](https://github.com/AbdurrahimBalta
 * [Image Processing](https://github.com/AbdurrahimBalta/My-Python-Adventure/tree/master/OpenCV/OPENCV_g%C3%B6r%C3%BCnt%C3%BC_i%C5%9Fleme): The main aspects of the principle of Image Processing.
 
 In this section, topics such as open image, video upload, open camera, resize crop, shape text, joining images, warp perspective, blending, image treshold, blurring (smoothing), morphology operations, gradients, histogram are covered.
+git
 
-* [Object Detection](https://github.com/AbdurrahimBalta/My-Python-Adventure/tree/master/OpenCV/opencv_nesne_taspiti): The main aspects of the principle of Object Detection.
-
-In this section, topics such edge detection, corner detection, contour detection, ball detection, template matching are covered.
-
+> pip install opencv-contrin-python --user 
 
 # Introduction To Data Science
 
 
-In this section you will find some libraries that I learned in introduction to data science[here](https://github.com/AbdurrahimBalta/My-Python-Adventure/tree/master/Introduction%20o%20data%20science) (Pandas, Numpy, Mathplotlib).
+In this section you will find some libraries that I learned in introduction to data science [here] (https://github.com/AbdurrahimBalta/My-Python-Adventure/tree/master/Introduction%20o%20data%20science) (Pandas, Numpy, Mathplotlib).
 
 
 * [Numpy](https://github.com/AbdurrahimBalta/My-Python-Adventure/blob/master/Introduction%20o%20data%20science/Numpy.py): The main aspects of the principle of Numpy.

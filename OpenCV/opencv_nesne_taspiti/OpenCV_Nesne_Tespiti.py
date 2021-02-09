@@ -189,43 +189,272 @@ while True:
 #%% Şablon eşleme tepmlate matching
 import cv2
 import matplotlib.pyplot as plt
-import numpy as np
 
+# template matching: sablon esleme
 
-img = cv2.imread("cat.jpg",0)
+img = cv2.imread("cat.jpg", 0)
 print(img.shape)
-template = cv2.imread("cat_face.jpg",0)
+template = cv2.imread("cat_face.jpg", 0)
 print(template.shape)
-h , w = template.shape
+h, w = template.shape
 
-methods = ['cv2.TM_CCOEFF', 'cv2.TM_CCOEFF_NORMED', 'cv2.TM_CCORR', # korelasyon medhodları
+methods = ['cv2.TM_CCOEFF', 'cv2.TM_CCOEFF_NORMED', 'cv2.TM_CCORR',# korelasyon medhodları
             'cv2.TM_CCORR_NORMED', 'cv2.TM_SQDIFF', 'cv2.TM_SQDIFF_NORMED']
 
 for meth in methods:
     
-    method = eval(meth) #eval stringi fonksiyona çevirir 'TM_CCOEFF_NORMED' ->> TM_CCOEFF_NORMED
+    method = eval(meth)#eval stringi fonksiyona çevirir 'TM_CCOEFF_NORMED' ->> TM_CCOEFF_NORMED
     
     res = cv2.matchTemplate(img, template, method)
-    
     print(res.shape)
-    
-    min_val, max_val, min_loc, max_loc =  cv2.minMaxLoc(res)
+    min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(res)
     
     if method in [cv2.TM_SQDIFF, cv2.TM_SQDIFF_NORMED]:
         top_left = min_loc
     else:
         top_left = max_loc
-        
+    
     bottom_right = (top_left[0] + w, top_left[1] + h)
     
     cv2.rectangle(img, top_left, bottom_right, 255, 2)
     
     plt.figure()
-    plt.subplot(121) 
+    plt.subplot(121), plt.imshow(res, cmap = "gray")
+    plt.title("Eşleşen Sonuç"), plt.axis("off")
+    plt.subplot(122), plt.imshow(img, cmap = "gray")
+    plt.title("Tespit edilen Sonuç"), plt.axis("off")
+    plt.suptitle(meth)
     
+    plt.show()
+#%% özellik eşleme
+import cv2
+import matplotlib.pyplot as plt
+
+#ana görüntü
+chos = cv2.imread("chocolates.jpg",0)
+plt.figure(),plt.imshow(chos, cmap = "gray"),plt.axis("off")
     
+#aranacak görsel    
+cho = cv2.imread("nestle.jpg",0)
+plt.figure(),plt.imshow(cho, cmap = "gray"),plt.axis("off")
+
+#orb tanımlayıcı
+#köşe-kenar gibi nesneye ait featureler
+
+orb = cv2.ORB_create()
+
+# anahtar nokta tespiti
+kp1, des1 = orb.detectAndCompute(cho, None)
+kp2, des2 = orb.detectAndCompute(chos,None)
+
+
+#bruf force matcher 
+bf = cv2.BFMatcher(cv2.NORM_HAMMING)
+#noktaları eşleştir
+matches = bf.match(des1,des2)
+
+#mesafeye göre sırala
+matches = sorted(matches, key = lambda x: x.distance)
+
+#eşleşen resimleri görselleştirelim
+plt.figure()
+img_match = cv2.drawMatches(cho, kp1, chos, kp2, matches[:20], None, flags = 2)
+plt.imshow(img_match), plt.axis("off"), plt.title("orb")
+
+
+#sift -> orbden daha iyi
+sift = cv2.xfeatures2d.SIFT_create()
+
+# bf
+bf = cv2.BFMatcher()
+
+kp1, des1 = sift.detectAndCompute(cho, None)
+kp2, des2 = sift.detectAndCompute(chos, None)
+
+
+matches = bf.knnMatch(des1, des2, k = 2)
+
+guzel_eslesme = []
+
+
+for match1, match2 in matches:
+
+    if match1.distance < 0.75 * match2.distance:
+        guzel_eslesme.append([match1])
+
+plt.figure()
+sift_matches = cv2.drawMatchesKnn(cho, kp1, chos, kp2, guzel_eslesme, None, flags = 2)
+plt.imshow(sift_matches), plt.axis("off"), plt.title("sift")
+
+
+#%% havza algoritması örnek 
+import cv2
+import matplotlib.pyplot as plt
+import numpy as np
+
+
+coin = cv2.imread("coins.jpg")
+plt.figure(), plt.imshow(coin), plt.axis("off")
+
+
+#lpf blurring 
+coin_blur = cv2.medianBlur(coin, 13)
+plt.figure(), plt.imshow(coin_blur), plt.axis("off")
+
+
+#grayscale
+coin_gray = cv2.cvtColor(coin_blur, cv2.COLOR_BGR2GRAY)
+plt.figure(), plt.imshow(coin_gray, cmap = "gray"), plt.axis("off")
+
+
+# binary treshold
+ret, coin_thresh = cv2.threshold(coin_gray, 75, 255, cv2.THRESH_BINARY)
+plt.figure(), plt.imshow(coin_thresh, cmap="gray"), plt.axis("off")
+
+
+# kontur
+contours,hierarchy = cv2.findContours(coin_thresh.copy(),cv2.RETR_CCOMP, cv2.CHAIN_APPROX_SIMPLE)
+
+
+for i in range(len(contours)):
     
+    if hierarchy[0][i][3] == -1:
+        cv2.drawContours(coin, contours, i,(0,255,0),10)
+        
+plt.figure(), plt.imshow(coin), plt.axis("off")
+
+
+#%%watershed (asıl havza algoritması)
+import cv2
+import matplotlib.pyplot as plt
+import numpy as np
+
+coin = cv2.imread("coins.jpg")
+plt.figure(), plt.imshow(coin), plt.axis("off")
+
+
+#lpf blurring 
+coin_blur = cv2.medianBlur(coin, 13)
+plt.figure(), plt.imshow(coin_blur), plt.axis("off")
+
+
+#grayscale
+coin_gray = cv2.cvtColor(coin_blur, cv2.COLOR_BGR2GRAY)
+plt.figure(), plt.imshow(coin_gray, cmap = "gray"), plt.axis("off")
+
+
+# binary treshold
+ret, coin_thresh = cv2.threshold(coin_gray, 65, 255, cv2.THRESH_BINARY)
+plt.figure(), plt.imshow(coin_thresh, cmap="gray"), plt.axis("off")
+
+# Açılma 
+
+kernel = np.ones((3,3), np.uint8)
+opening = cv2.morphologyEx(coin_thresh, cv2.MORPH_OPEN, kernel, iterations = 2)
+plt.figure(), plt.imshow(opening, cmap = "gray"), plt.axis("off")
+
+# nesneler arası distance bulma 
+dist_transform = cv2.distanceTransform(opening, cv2.DIST_L2,5)
+plt.figure(), plt.imshow(dist_transform, cmap="gray"), plt.axis("off")
+ 
+
+# resmi küçült
+ret, sure_foreground = cv2.threshold(dist_transform, 0.4 * np.max(dist_transform),255,0)
+plt.figure(), plt.imshow(sure_foreground, cmap="gray"), plt.axis("off")
+
+
+# arka plan için resmi büyült
+sure_background = cv2.dilate(opening, kernel, iterations = 1)
+sure_foreground = np.uint8(sure_foreground)
+
+unknown = cv2.subtract(sure_background,sure_foreground)
+plt.figure(), plt.imshow(unknown, cmap="gray"), plt.axis("off")
+
+#bağlantı
+
+ret, marker = cv2.connectedComponents(sure_foreground)
+
+marker = marker + 1
+marker[unknown == 255] = 0
+plt.figure(), plt.imshow(marker, cmap="gray"), plt.axis("off")
+
+#havza algoritması
+
+marker = cv2.watershed(coin,marker)
+plt.figure(), plt.imshow(marker, cmap="gray"), plt.axis("off")
+
+
+
+# kontur
+contours,hierarchy = cv2.findContours(marker.copy(),cv2.RETR_CCOMP, cv2.CHAIN_APPROX_SIMPLE)
+
+for i in range(len(contours)):
     
+    if hierarchy[0][i][3] == -1:
+        cv2.drawContours(coin, contours, i,(255,0,0),10)
+        
+plt.figure(), plt.imshow(coin), plt.axis("off")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
         
         
         
