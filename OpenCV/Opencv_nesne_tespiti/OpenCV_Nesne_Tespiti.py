@@ -394,6 +394,233 @@ for i in range(len(contours)):
         cv2.drawContours(coin, contours, i,(255,0,0),10)
         
 plt.figure(), plt.imshow(coin), plt.axis("off")
+#%%
+import cv2
+import matplotlib.pyplot as plt 
+
+
+#içe aktar
+einstein = cv2.imread("einstein.jpg", 0)
+plt.figure(), plt.imshow(einstein,cmap = "gray"),plt.axis("off")
+
+# sınıflandırıcı (yüz)
+face_cascade = cv2.CascadeClassifier("haarcascade_frontalface_default.xml")
+
+face_rect = face_cascade.detectMultiScale(einstein)
+
+for(x,y,w,h) in face_rect:
+    cv2.rectangle(einstein, (x,y), (x+w, y+h),(255,255,255),10)
+
+plt.figure(), plt.imshow(einstein,cmap = "gray"),plt.axis("off")
+
+
+
+#Barça
+barce= cv2.imread("barcelona.jpg", 0)
+plt.figure(), plt.imshow(barce,cmap = "gray"),plt.axis("off")
+
+
+face_rect = face_cascade.detectMultiScale(barce)
+
+
+for(x,y,w,h) in face_rect:
+    cv2.rectangle(barce, (x,y), (x+w, y+h),(255,255,255),10)
+
+plt.figure(), plt.imshow(barce,cmap = "gray"),plt.axis("off")
+
+
+
+#video
+
+cap = cv2.VideoCapture(0)
+
+while True:
+    
+    ret, frame = cap.read()
+    
+    if ret:
+        
+        face_rect = face_cascade.detectMultiScale(frame,minNeighbors = 3)
+        
+        
+        for(x,y,w,h) in face_rect:
+            cv2.rectangle(frame, (x,y), (x+w, y+h),(255,255,255),10)
+
+        cv2.imshow("face detect",frame)
+        
+    if cv2.waitKey(1) & 0xFF == ord("q"): break 
+
+cap.release(
+cv2.destroyAllWindows        
+#%% özel benzer özellikleri tespiti
+"""
+1) veri seti:
+    n,p
+2) cascade programı indir
+3) cascade
+4)cascade kullarak tespit algoritması
+"""
+import os 
+import cv2
+
+#resim deposu klasörü
+
+path = "images"
+
+#resim boyutu
+
+imgWidth = 180
+imgHeight = 120
+
+#video capture
+
+cap = cv2.VideoCapture(0) #kamera boyutları ve renk ayarları
+cap.set(3,640)
+cap.set(4,480)
+cap.set(10,180)
+
+global countFolder
+def saveDataFunc():
+    global countFolder
+    countFolder = 0
+    while os.path.exists(path + str(countFolder)):
+        countFolder += 1
+    os.makedirs(path + str(countFolder))
+
+saveDataFunc()
+
+
+
+count = 0 
+countSave = 0
+
+while True:
+    
+    success, img = cap.read()
+    
+    if success:
+        
+        img = cv2.resize(img,(imgWidth,imgHeight))
+        
+        if count % 5 == 0:
+            cv2.imwrite(path + str(countFolder)+"/"+str(countSave)+"_"+".png",img)
+            countSave += 1
+            print(countSave)
+            
+        count += 1
+        
+        cv2.imshow("Image",img)
+        
+    if cv2.waitKey(1) & 0xFF == ord("q"): break
+
+cap.release()
+cv2.destroyAllWindows()
+
+import cv2
+
+path = "cascade.xml"
+objectName = "Kalem Ucu"
+
+#%% Yaya tespiti
+import cv2
+import os
+
+files = os.listdir()
+img_path_list = []
+
+for f in files:
+    if f.endswith(".jpg"):
+        img_path_list.append(f)
+    
+print(img_path_list)
+
+# hog tanımlayıcısı
+hog = cv2.HOGDescriptor()
+# tanımlayıcıa SVM ekle
+hog.setSVMDetector(cv2.HOGDescriptor_getDefaultPeopleDetector())
+
+for imagePath in img_path_list:
+    print(imagePath)
+    
+    image = cv2.imread(imagePath)
+    
+    (rects, weights) = hog.detectMultiScale(image, padding = (8,8), scale = 1.05)
+    
+    for (x,y,w,h) in rects:
+        cv2.rectangle(image, (x,y),(x+w,y+h),(0,0,255),2)
+         
+    cv2.imshow("Yaya: ",image)
+    
+    if cv2.waitKey(0) & 0xFF == ord("q"): continue
+    
+    
+        
+        
+    
+    
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
